@@ -1,15 +1,21 @@
 import React from "react";
-// import './style/Message.css'
+import './style/Message.css'
 import { useState, useEffect } from "react";
 import useAxios from "../utils/useAxios";
 import jwtDecode from "jwt-decode";
 import { useParams, Link } from "react-router-dom/";
 import moment from "moment";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 function MessageDetail() {
   const baseURL = "http://127.0.0.1:8000/api";
   const [message, setMessage] = useState([]);
   const [messages, setMessages] = useState([]);
+  
+  const [user, setUser] = useState([])
+  const [profile, setProfile] = useState([])
+  let [newMessage, setnewMessage] = useState({message: "",});
+  let [newSearch, setnewSearch] = useState({search: "",});
 
   const id = useParams();
   console.log(id);
@@ -17,6 +23,8 @@ function MessageDetail() {
   const token = localStorage.getItem("authTokens");
   const decoded = jwtDecode(token);
   const user_id = decoded.user_id;
+  const username = decoded.username
+  const history = useHistory()
 
   useEffect(() => {
     axios
@@ -41,6 +49,81 @@ function MessageDetail() {
     }
   }, []);
 
+
+
+  // send
+  useEffect(() => {
+    const fetchProfile = async () => {
+          try {
+            await axios.get(baseURL + '/profile/' + id.id + '/').then((res) => {
+              setProfile(res.data)
+              setUser(res.data.user)
+            })
+              
+          }catch (error) {
+              console.log(error);
+            }}
+        fetchProfile()
+  }, [])
+
+  // capture changes made by the user in those fields and update the component's state accordingly.
+  const handleChange = (event) => {
+    setnewMessage({
+      ...newMessage,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+
+
+  const SendMessage = () => {
+    const formdata = new FormData()
+    formdata.append("user", user_id)
+    formdata.append("sender", user_id)
+    formdata.append("receiver", id.id)
+    formdata.append("message", newMessage.message)
+    formdata.append("is_read", false)
+
+    try {
+        axios.post(baseURL + '/send-messages/', formdata).then((res) => {
+          document.getElementById("text-input").value = "";
+          setnewMessage(newMessage = "")
+        })
+    } catch (error) {
+        console.log("error ===", error);
+    }
+
+  }
+
+
+
+  // sercha
+   const handleSearchChange = (event) => {
+    setnewSearch({
+      ...newSearch,
+      [event.target.name]: event.target.value,
+    });
+
+  };
+
+  console.log(newSearch.username);
+
+  const SearchUser = () => {
+    axios.get(baseURL + '/search/' + newSearch.username + '/')
+        .then((res) => {
+            if (res.status === 404) {
+                console.log(res.data.detail);
+                alert("User does not exist");
+            } else {
+                history.push('/search/'+newSearch.username+'/');
+            }
+        })
+        .catch((error) => {
+            alert("User Does Not Exist")
+        });
+};
+  
+
   return (
     <div>
       <main className="content" style={{ marginTop: "150px" }}>
@@ -58,12 +141,12 @@ function MessageDetail() {
                         className="form-control my-3"
                         placeholder="Search..."
                         name="username"
-                        // onChange={handleSearchChange}
+                        onChange={handleSearchChange}
                       />
                       <button
                         className="ml-2"
                         style={{ border: "none", borderRadius: "50%" }}
-                        // onClick={SearchUser}
+                        onClick={SearchUser}
                       >
                         <i className="fas fa-search"></i>
                       </button>
@@ -274,19 +357,21 @@ function MessageDetail() {
 
                   {/* Chat Input */}
                   <div className="flex-grow-0 py-3 px-4 border-top">
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Type your message"
-                      />
-                      <button className="btn btn-primary" type="button">
-                        Send
-                      </button>
-                    </div>
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Type your message"
+                      value={newMessage.message} 
+                      name="message" 
+                      id='text-input'
+                      onChange={handleChange}
+                    />
+                    <button onClick={SendMessage} className="btn btn-primary">Send</button>
                   </div>
                 </div>
               </div>
+            </div>
               {/* End Chat Panel */}
             </div>
           </div>
