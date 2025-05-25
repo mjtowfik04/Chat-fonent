@@ -1,5 +1,5 @@
 import React from "react";
-import './style/Message.css'
+import "./style/Message.css";
 import { useState, useEffect } from "react";
 import useAxios from "../utils/useAxios";
 import jwtDecode from "jwt-decode";
@@ -11,11 +11,11 @@ function MessageDetail() {
   const baseURL = "http://127.0.0.1:8000/api";
   const [message, setMessage] = useState([]);
   const [messages, setMessages] = useState([]);
-  
-  const [user, setUser] = useState([])
-  const [profile, setProfile] = useState([])
-  let [newMessage, setnewMessage] = useState({message: "",});
-  let [newSearch, setnewSearch] = useState({search: "",});
+
+  const [user, setUser] = useState([]);
+  const [profile, setProfile] = useState([]);
+  let [newMessage, setnewMessage] = useState({ message: "" });
+  let [newSearch, setnewSearch] = useState({ search: "" });
 
   const id = useParams();
   console.log(id);
@@ -23,8 +23,8 @@ function MessageDetail() {
   const token = localStorage.getItem("authTokens");
   const decoded = jwtDecode(token);
   const user_id = decoded.user_id;
-  const username = decoded.username
-  const history = useHistory()
+  const username = decoded.username;
+  const history = useHistory();
 
   useEffect(() => {
     axios
@@ -49,22 +49,20 @@ function MessageDetail() {
     }
   }, []);
 
-
-
   // send
   useEffect(() => {
     const fetchProfile = async () => {
-          try {
-            await axios.get(baseURL + '/profile/' + id.id + '/').then((res) => {
-              setProfile(res.data)
-              setUser(res.data.user)
-            })
-              
-          }catch (error) {
-              console.log(error);
-            }}
-        fetchProfile()
-  }, [])
+      try {
+        await axios.get(baseURL + "/profile/" + id.id + "/").then((res) => {
+          setProfile(res.data);
+          setUser(res.data.user);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   // capture changes made by the user in those fields and update the component's state accordingly.
   const handleChange = (event) => {
@@ -74,55 +72,49 @@ function MessageDetail() {
     });
   };
 
-
-
   const SendMessage = () => {
-    const formdata = new FormData()
-    formdata.append("user", user_id)
-    formdata.append("sender", user_id)
-    formdata.append("receiver", id.id)
-    formdata.append("message", newMessage.message)
-    formdata.append("is_read", false)
+    const formdata = new FormData();
+    formdata.append("user", user_id);
+    formdata.append("sender", user_id);
+    formdata.append("receiver", id.id);
+    formdata.append("message", newMessage.message);
+    formdata.append("is_read", false);
 
     try {
-        axios.post(baseURL + '/send-messages/', formdata).then((res) => {
-          document.getElementById("text-input").value = "";
-          setnewMessage(newMessage = "")
-        })
+      axios.post(baseURL + "/send-messages/", formdata).then((res) => {
+        document.getElementById("text-input").value = "";
+        setnewMessage((newMessage = ""));
+      });
     } catch (error) {
-        console.log("error ===", error);
+      console.log("error ===", error);
     }
-
-  }
-
-
+  };
 
   // sercha
-   const handleSearchChange = (event) => {
+  const handleSearchChange = (event) => {
     setnewSearch({
       ...newSearch,
       [event.target.name]: event.target.value,
     });
-
   };
 
   console.log(newSearch.username);
 
   const SearchUser = () => {
-    axios.get(baseURL + '/search/' + newSearch.username + '/')
-        .then((res) => {
-            if (res.status === 404) {
-                console.log(res.data.detail);
-                alert("User does not exist");
-            } else {
-                history.push('/search/'+newSearch.username+'/');
-            }
-        })
-        .catch((error) => {
-            alert("User Does Not Exist")
-        });
-};
-  
+    axios
+      .get(baseURL + "/search/" + newSearch.username + "/")
+      .then((res) => {
+        if (res.status === 404) {
+          console.log(res.data.detail);
+          alert("User does not exist");
+        } else {
+          history.push("/search/" + newSearch.username + "/");
+        }
+      })
+      .catch((error) => {
+        alert("User Does Not Exist");
+      });
+  };
 
   return (
     <div>
@@ -179,13 +171,19 @@ function MessageDetail() {
                       <img
                         src={
                           message.sender === user_id
-                            ? message.receiver_profile.image
-                            : message.sender_profile.image
+                            ? message.receiver_profile.image ||
+                              "https://via.placeholder.com/40"
+                            : message.sender_profile.image ||
+                              "https://via.placeholder.com/40"
                         }
-                        className="rounded-circle mr-1"
+                        className="rounded-circle shadow-sm mr-1"
                         alt="profile"
                         width={40}
                         height={40}
+                        style={{
+                          objectFit: "cover",
+                          border: "1px solid #ddd",
+                        }}
                       />
                       <div className="flex-grow-1 ml-3">
                         <div className="font-weight-bold">
@@ -217,78 +215,36 @@ function MessageDetail() {
                   <div className="d-flex align-items-center py-1">
                     <div className="position-relative">
                       <img
-                        src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                        className="rounded-circle mr-1"
-                        alt="Sharon Lessman"
+                        src={
+                          message.length > 0
+                            ? message[0].sender === user_id
+                              ? message[0].receiver_profile.image ||
+                                "https://via.placeholder.com/40"
+                              : message[0].sender_profile.image ||
+                                "https://via.placeholder.com/40"
+                            : "https://via.placeholder.com/40"
+                        }
+                        className="rounded-circle shadow-sm mr-1"
+                        alt="Receiver Profile"
                         width={40}
                         height={40}
+                        style={{
+                          objectFit: "cover",
+                          border: "1px solid #ddd",
+                        }}
                       />
                     </div>
                     <div className="flex-grow-1 pl-3">
-                      <strong>Sharon Lessman</strong>
+                      <strong>
+                        {message.length > 0
+                          ? message[0].sender === user_id
+                            ? message[0].receiver_profile.full_name
+                            : message[0].sender_profile.full_name
+                          : "Loading..."}
+                      </strong>
                       <div className="text-muted small">
                         <em>Online</em>
                       </div>
-                    </div>
-                    <div>
-                      <button className="btn btn-primary btn-lg mr-1 px-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width={24}
-                          height={24}
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="feather feather-phone feather-lg"
-                        >
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                        </svg>
-                      </button>
-                      <button className="btn btn-info btn-lg mr-1 px-3 d-none d-md-inline-block">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width={24}
-                          height={24}
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="feather feather-video feather-lg"
-                        >
-                          <polygon points="23 7 16 12 23 17 23 7" />
-                          <rect
-                            x={1}
-                            y={5}
-                            width={15}
-                            height={14}
-                            rx={2}
-                            ry={2}
-                          />
-                        </svg>
-                      </button>
-                      <button className="btn btn-light border btn-lg px-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width={24}
-                          height={24}
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="feather feather-more-horizontal feather-lg"
-                        >
-                          <circle cx={12} cy={12} r={1} />
-                          <circle cx={19} cy={12} r={1} />
-                          <circle cx={5} cy={12} r={1} />
-                        </svg>
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -299,16 +255,22 @@ function MessageDetail() {
                     {message.map((msg, index) => (
                       <React.Fragment key={index}>
                         {msg.sender === user_id ? (
-                          // Right-side message (You sent this)
+                          // Right-side message
                           <div className="chat-message-right pb-4">
                             <div>
                               <img
-                                src={msg.sender_profile.image}
-                                className="rounded-circle mr-1"
+                                src={
+                                  msg.sender_profile.image ||
+                                  "https://via.placeholder.com/40"
+                                }
+                                className="rounded-circle shadow-sm mr-1"
                                 alt={msg.sender_profile.full_name}
-                                style={{ objectFit: "cover" }}
-                                width={40}
-                                height={40}
+                                style={{
+                                  objectFit: "cover",
+                                  width: "40px",
+                                  height: "40px",
+                                  border: "1px solid #ddd",
+                                }}
                               />
                               <div className="text-muted small text-nowrap mt-2">
                                 {moment
@@ -324,16 +286,22 @@ function MessageDetail() {
                             </div>
                           </div>
                         ) : (
-                          // Left-side message (Someone else sent it)
+                          // Left-side message
                           <div className="chat-message-left pb-4">
                             <div>
                               <img
-                                src={msg.sender_profile.image}
-                                className="rounded-circle mr-1"
+                                src={
+                                  msg.sender_profile.image ||
+                                  "https://via.placeholder.com/40"
+                                }
+                                className="rounded-circle shadow-sm mr-1"
                                 alt={msg.sender_profile.full_name}
-                                style={{ objectFit: "cover" }}
-                                width={40}
-                                height={40}
+                                style={{
+                                  objectFit: "cover",
+                                  width: "40px",
+                                  height: "40px",
+                                  border: "1px solid #ddd",
+                                }}
                               />
                               <div className="text-muted small text-nowrap mt-2">
                                 {moment
@@ -356,23 +324,37 @@ function MessageDetail() {
                   </div>
 
                   {/* Chat Input */}
-                  <div className="flex-grow-0 py-3 px-4 border-top">
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Type your message"
-                      value={newMessage.message} 
-                      name="message" 
-                      id='text-input'
-                      onChange={handleChange}
-                    />
-                    <button onClick={SendMessage} className="btn btn-primary">Send</button>
+                  <div className="flex-grow-0 py-3 px-4 border-top bg-white">
+                    <div className="input-group shadow-sm rounded-pill overflow-hidden">
+                      <input
+                        type="text"
+                        className="form-control border-0"
+                        placeholder="Type your message..."
+                        value={newMessage.message}
+                        name="message"
+                        id="text-input"
+                        onChange={handleChange}
+                        style={{
+                          borderRadius: "50px 0 0 50px",
+                          paddingLeft: "20px",
+                        }}
+                      />
+                      <button
+                        onClick={SendMessage}
+                        className="btn btn-primary"
+                        style={{
+                          borderRadius: "0 50px 50px 0",
+                          padding: "0 25px",
+                          fontWeight: "500",
+                        }}
+                      >
+                        <i className="fas fa-paper-plane me-1"></i> Send
+                      </button>
+                    </div>
                   </div>
                 </div>
+                {/* End Chat Panel */}
               </div>
-            </div>
-              {/* End Chat Panel */}
             </div>
           </div>
         </div>

@@ -43,3 +43,17 @@ body{margin-top:20px;}
 .border-top {
     border-top: 1px solid #dee2e6!important;
 }
+
+/* প্রোফাইল ছবিগুলো সুন্দর করার জন্য */
+img.rounded-circle.profile-photo {
+  border: 2px solid #4a90e2; /* নীল রঙের বর্ডার */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* হালকা শ্যাডো */
+  object-fit: cover; /* ছবির অংশ সুন্দরভাবে ফিট হবে */
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+img.rounded-circle.profile-photo:hover {
+  transform: scale(1.1); /* হোভার করলে একটু বড় হবে */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
