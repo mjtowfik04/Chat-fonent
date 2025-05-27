@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 import { createContext, useState, useEffect } from "react";
 import jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
@@ -11,64 +10,51 @@ export const AuthProvider = ({ children }) => {
   const baseurl = "https://chat-backend-ten-orcin.vercel.app";
   const navigate = useNavigate();
 
+  // Safely retrieve and validate tokens from localStorage
   const getStoredTokens = () => {
-    try {
-      const tokens = JSON.parse(localStorage.getItem("authTokens"));
-      if (!tokens || !tokens.access) return null;
-      return tokens;
-    } catch {
-      return null;
-    }
-  };
+  try {
+    const stored = localStorage.getItem("authTokens");
+    if (!stored) return null;
 
+    const tokens = JSON.parse(stored);
+
+    if (
+      !tokens?.access ||
+      typeof tokens.access !== "string" ||
+      tokens.access.trim() === "" 
+      // tokens.access === "undefined" ||
+      // tokens.access === "null"
+    ) {
+      throw new Error("Invalid access token format");
+    }
+
+    jwt_decode(tokens.access); // Try decoding to confirm it's a real token
+    return tokens;
+  } catch (error) {
+    console.warn("Invalid token found in localStorage:", error.message);
+    localStorage.removeItem("authTokens");
+    return null;
+  }
+};
+
+  // Safely decode a valid JWT access token
   const getDecodedUser = (tokens) => {
     try {
-      return tokens && tokens.access ? jwt_decode(tokens.access) : null;
-    } catch {
+      return tokens?.access ? jwt_decode(tokens.access) : null;
+    } catch (error) {
+      console.warn("Failed to decode user from token.");
       return null;
     }
   };
 
-  const [authTokens, setAuthTokens] = useState(getStoredTokens);
-  const [user, setUser] = useState(() => getDecodedUser(getStoredTokens()));
+  const initialTokens = getStoredTokens();
+  const initialUser = getDecodedUser(initialTokens);
+
+  const [authTokens, setAuthTokens] = useState(initialTokens);
+  const [user, setUser] = useState(initialUser);
   const [loading, setLoading] = useState(true);
 
-  const isTokenExpired = (token) => {
-    if (!token) return true;
-    try {
-      const decoded = jwt_decode(token);
-      return decoded.exp < Date.now() / 1000;
-    } catch {
-      return true;
-    }
-  };
-
-  const refreshToken = async () => {
-    try {
-      const response = await fetch(`${baseurl}/api/token/refresh/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh: authTokens?.refresh }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setAuthTokens(data);
-        setUser(jwt_decode(data.access));
-        localStorage.setItem("authTokens", JSON.stringify(data));
-        return true;
-      } else {
-        logoutUser();
-        return false;
-      }
-    } catch (error) {
-      console.error("Refresh token error:", error);
-      logoutUser();
-      return false;
-    }
-  };
-
+  // Login function
   const loginUser = async (email, password) => {
     const response = await fetch(`${baseurl}/api/token/`, {
       method: "POST",
@@ -79,19 +65,24 @@ export const AuthProvider = ({ children }) => {
     const data = await response.json();
 
     if (response.ok) {
-      setAuthTokens(data);
-      setUser(jwt_decode(data.access));
-      localStorage.setItem("authTokens", JSON.stringify(data));
-      navigate("/");
-      swal.fire({
-        title: "Login Successful",
-        icon: "success",
-        toast: true,
-        timer: 4000,
-        position: "top-right",
-        showConfirmButton: false,
-        timerProgressBar: true,
-      });
+      try {
+        const decoded = jwt_decode(data.access);
+        setAuthTokens(data);
+        setUser(decoded);
+        localStorage.setItem("authTokens", JSON.stringify(data));
+        navigate("/");
+        swal.fire({
+          title: "Login Successful",
+          icon: "success",
+          toast: true,
+          timer: 4000,
+          position: "top-right",
+          showConfirmButton: false,
+          timerProgressBar: true,
+        });
+      } catch (error) {
+        logoutUser();
+      }
     } else {
       swal.fire({
         title: "Invalid Credentials",
@@ -105,6 +96,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Register function
   const registerUser = async (email, username, password, password2) => {
     const response = await fetch(`${baseurl}/api/register/`, {
       method: "POST",
@@ -138,11 +130,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Logout function
   const logoutUser = () => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem("authTokens");
-    navigate("/login");
+    navigate("/");
     swal.fire({
       title: "Logged out",
       icon: "success",
@@ -154,15 +147,10 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // Update profile function
   const updateUserProfile = async (user_id, formData) => {
     try {
-      if (isTokenExpired(authTokens?.access)) {
-        const refreshed = await refreshToken();
-        if (!refreshed) throw new Error("Token refresh failed");
-      }
-
       const token = authTokens?.access;
-
       const response = await fetch(`${baseurl}/api/profile/${user_id}/`, {
         method: "PUT",
         headers: {
@@ -182,15 +170,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // On app load: restore session if possible
   useEffect(() => {
     const tokens = getStoredTokens();
-    if (tokens) {
+    const decodedUser = getDecodedUser(tokens);
+
+    if (tokens && decodedUser) {
       setAuthTokens(tokens);
-      setUser(getDecodedUser(tokens));
+      setUser(decodedUser);
+    } else {
+      localStorage.removeItem("authTokens");
+      setAuthTokens(null);
+      setUser(null);
     }
+
     setLoading(false);
   }, []);
 
+  // Shared context values
   const contextData = {
     user,
     setUser,

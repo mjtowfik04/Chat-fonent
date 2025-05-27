@@ -66,7 +66,7 @@ function Navbar() {
                 <>
                   <li class="nav-item">
                     <Link class="nav-link" to="/update">
-                      Dashboard
+                      My profile
                     </Link>
                   </li>
                   <li class="nav-item">
