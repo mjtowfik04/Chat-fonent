@@ -5,10 +5,10 @@ import Swal from 'sweetalert2'
 
 
 function Todo() {
-    const baseUrl = "http://127.0.0.1:8000/api"
+    const baseURL = "https://chat-backend-ten-orcin.vercel.app/api";
     const api = useAxios()
 
-    const token = localStorage.getItem("authTokens") // 233704237huhweioyop;yrwriweyrwe
+    const token = localStorage.getItem("authTokens") 
     const decoded = jwtDecode(token)
     const user_id = decoded.user_id
 
@@ -18,7 +18,7 @@ function Todo() {
     }, [])
 
     const fetchTodos = async () => {
-        await api.get(baseUrl + '/todo/' + user_id + '/').then((res) => {
+        await api.get(baseURL + '/todo/' + user_id + '/').then((res) => {
             console.log(res.data);
             setTodo(res.data)
         })
@@ -43,7 +43,7 @@ function Todo() {
         formdata.append("completed", false)
 
         try{
-            api.post(baseUrl + '/todo/' + user_id + '/', formdata).then((res) => {
+            api.post(baseURL + '/todo/' + user_id + '/', formdata).then((res) => {
                 console.log(res.data);
                 Swal.fire({
                     title: "Todo Added",
@@ -62,7 +62,7 @@ function Todo() {
     }
 
     const deleteTodo = async (todo_id) => {
-        await api.delete(baseUrl + '/todo-detail/' + user_id + '/' + todo_id + '/')
+        await api.delete(baseURL + '/todo-detail/' + user_id + '/' + todo_id + '/')
         Swal.fire({
             title: "Todo Deleted",
             icon:"success",
@@ -75,7 +75,7 @@ function Todo() {
     }
 
     const markTodoAsComplete = async (todo_id) => {
-        await api.patch(baseUrl + '/todo-mark-as-completed/' + user_id + '/' + todo_id + '/')
+        await api.patch(baseURL + '/todo-mark-as-completed/' + user_id + '/' + todo_id + '/')
         Swal.fire({
             title: "Todo Completed",
             icon:"success",

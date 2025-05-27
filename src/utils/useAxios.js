@@ -4,13 +4,13 @@ import dayjs from "dayjs";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
-const baseURL = "http://127.0.0.1:8000/api";
+  const baseurl = "https://chat-backend-ten-orcin.vercel.app"; 
 
 const useAxios = () => {
   const { authTokens, setUser, setAuthTokens } = useContext(AuthContext);
 
   const axiosInstance = axios.create({
-    baseURL,
+    baseurl,
     headers: { Authorization: `Bearer ${authTokens?.access}` }
   });
 
@@ -20,7 +20,7 @@ const useAxios = () => {
 
     if (!isExpired) return req;
 
-    const response = await axios.post(`${baseURL}/token/refresh/`, {
+    const response = await axios.post(`${baseurl}/token/refresh/`, {
       refresh: authTokens.refresh
     });
     localStorage.setItem("authTokens", JSON.stringify(response.data));

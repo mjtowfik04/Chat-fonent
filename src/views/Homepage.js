@@ -7,9 +7,7 @@ function Homepage() {
     <h1>hi</h1>
 
 
-    
-    
-
+  
   )
 }
 

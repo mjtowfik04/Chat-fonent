@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link,  useNavigate } from "react-router-dom";
 import useAxios from "../utils/useAxios";
 import jwtDecode from "jwt-decode";
 import moment from "moment";
 import "./style/Message.css";
 
 function Message() {
-  const baseURL = "http://127.0.0.1:8000/api";
+  const baseURL = "https://chat-backend-ten-orcin.vercel.app/api";
   const [messages, setMessages] = useState([]);
   const [newSearch, setNewSearch] = useState({ username: "" });
   const axios = useAxios();
   const token = localStorage.getItem("authTokens");
   const decoded = jwtDecode(token);
   const user_id = decoded.user_id;
-  const history = useHistory();
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     axios
@@ -36,7 +37,7 @@ function Message() {
     axios
       .get(`${baseURL}/search/${newSearch.username}/`)
       .then(() => {
-        history.push("/search/" + newSearch.username + "/");
+        navigate("/search/" + newSearch.username + "/");
       })
       .catch(() => {
         alert("User Does Not Exist");

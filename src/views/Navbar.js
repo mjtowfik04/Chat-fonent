@@ -65,7 +65,7 @@ function Navbar() {
               {token !== null && (
                 <>
                   <li class="nav-item">
-                    <Link class="nav-link" to="/dashboard">
+                    <Link class="nav-link" to="/update">
                       Dashboard
                     </Link>
                   </li>
