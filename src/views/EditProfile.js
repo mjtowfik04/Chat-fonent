@@ -3,12 +3,13 @@ import { useForm } from "react-hook-form";
 import AuthContext from "../context/AuthContext";
 
 function EditProfile() {
-  const { user,updateUserProfile,authTokens,} = useContext(AuthContext);
+  const { user, updateUserProfile, authTokens } = useContext(AuthContext);
 
   const { register, handleSubmit, watch, reset } = useForm();
   const imageFile = watch("image");
   const [editing, setEditing] = useState(false);
 
+  // Reset form when user data changes
   useEffect(() => {
     if (user) {
       reset({
@@ -18,26 +19,36 @@ function EditProfile() {
     }
   }, [user, reset]);
 
-const onSubmit = async (data) => {
-  try {
-    const formData = new FormData();
-    formData.append("full_name", data.full_name);
-    formData.append("bio", data.bio);
-    if (data.image && data.image[0]) {
-      formData.append("image", data.image[0]);
+  // 🔁 Auto refresh every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (user) {
+        reset({
+          full_name: user.full_name || "",
+          bio: user.bio || "",
+        });
+      }
+    }, 20000);
+
+    return () => clearInterval(interval); // Cleanup
+  }, [user, reset]);
+
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+      formData.append("full_name", data.full_name);
+      formData.append("bio", data.bio);
+      if (data.image && data.image[0]) {
+        formData.append("image", data.image[0]);
+      }
+
+      await updateUserProfile(user.user_id, formData);
+      alert("Profile updated successfully");
+      setEditing(false);
+    } catch (error) {
+      console.error("Update failed:", error);
     }
-    console.log(authTokens)
-
-    await updateUserProfile(user.user_id, formData);  
-    alert("Profile updated successfully");
-    setEditing(false);
-  } catch (error) {
-    console.error("Update failed:", error);
-  }
-};
-
-
-
+  };
 
   return (
     <div className="container mt-20" style={{ maxWidth: "600px" }}>

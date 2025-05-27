@@ -57,3 +57,31 @@ img.rounded-circle.profile-photo:hover {
   transform: scale(1.1); /* হোভার করলে একটু বড় হবে */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
+/* style/Message.css */
+
+.profile-carousel {
+  display: flex;
+  overflow-x: auto;
+  padding: 5px;
+  gap: 10px;
+  scrollbar-width: none;
+}
+
+.profile-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.profile-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.profile-photo {
+  object-fit: cover;
+}
+.chat-messages {
+  height: 70vh;
+  overflow-y: auto;
+}

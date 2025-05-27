@@ -23,7 +23,7 @@ function MessageDetail() {
   const username = decoded.username;
   const navigate = useNavigate();
 
-  // Load all conversations/messages of the user
+  // Load user conversations
   useEffect(() => {
     axios
       .get(`${baseURL}/my-messages/${user_id}/`)
@@ -31,7 +31,7 @@ function MessageDetail() {
       .catch(console.log);
   }, [user_id]);
 
-  // Load messages with the particular user (id)
+  // Load message history
   useEffect(() => {
     axios
       .get(`${baseURL}/get-messages/${user_id}/${id}/`)
@@ -39,7 +39,27 @@ function MessageDetail() {
       .catch(console.log);
   }, [user_id, id]);
 
-  // Load profile of the user on chat sidebar
+  // Auto-refresh messages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      axios
+        .get(`${baseURL}/get-messages/${user_id}/${id}/`)
+        .then((res) => setMessage(res.data))
+        .catch(console.log);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [user_id, id]);
+
+  // Scroll to bottom when message updates
+  useEffect(() => {
+    const chatBox = document.querySelector(".chat-messages");
+    if (chatBox) {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }, [message]);
+
+  // Profile info
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -53,15 +73,10 @@ function MessageDetail() {
     fetchProfile();
   }, [id]);
 
-  // Handle new message input change
   const handleChange = (event) => {
-    setnewMessage({
-      ...newMessage,
-      [event.target.name]: event.target.value,
-    });
+    setnewMessage({ ...newMessage, [event.target.name]: event.target.value });
   };
 
-  // Send message to the server
   const SendMessage = () => {
     const formdata = new FormData();
     formdata.append("user", user_id);
@@ -79,24 +94,15 @@ function MessageDetail() {
       .catch(console.log);
   };
 
-  // Search user input change
   const handleSearchChange = (event) => {
-    setnewSearch({
-      ...newSearch,
-      [event.target.name]: event.target.value,
-    });
+    setnewSearch({ ...newSearch, [event.target.name]: event.target.value });
   };
 
-  // Search user and navigate
   const SearchUser = () => {
     axios
       .get(`${baseURL}/search/${newSearch.username}/`)
-      .then(() => {
-        navigate(`/search/${newSearch.username}/`);
-      })
-      .catch(() => {
-        alert("User Does Not Exist");
-      });
+      .then(() => navigate(`/search/${newSearch.username}/`))
+      .catch(() => alert("User Does Not Exist"));
   };
 
   return (
@@ -105,26 +111,24 @@ function MessageDetail() {
         <h1 className="h3 mb-3">Messages</h1>
         <div className="card">
           <div className="row g-0">
-            {/* Sidebar - User List */}
+            {/* Sidebar */}
             <div className="col-12 col-lg-5 col-xl-3 border-right">
               <div className="px-4">
-                <div className="d-flex align-items-center">
-                  <div className="flex-grow-1 d-flex align-items-center mt-2">
-                    <input
-                      type="text"
-                      className="form-control my-3"
-                      placeholder="Search..."
-                      name="username"
-                      onChange={handleSearchChange}
-                    />
-                    <button
-                      className="ml-2"
-                      style={{ border: "none", borderRadius: "50%" }}
-                      onClick={SearchUser}
-                    >
-                      <i className="fas fa-search"></i>
-                    </button>
-                  </div>
+                <div className="d-flex align-items-center mt-2">
+                  <input
+                    type="text"
+                    className="form-control my-3"
+                    placeholder="Search..."
+                    name="username"
+                    onChange={handleSearchChange}
+                  />
+                  <button
+                    className="ml-2"
+                    style={{ border: "none", borderRadius: "50%" }}
+                    onClick={SearchUser}
+                  >
+                    <i className="fas fa-search"></i>
+                  </button>
                 </div>
               </div>
 
@@ -142,15 +146,17 @@ function MessageDetail() {
                 >
                   <small>
                     <div className="badge bg-success float-right text-white">
-                      {moment.utc(message.date).local().startOf("seconds").fromNow()}
+                      {moment.utc(message.date).local().fromNow()}
                     </div>
                   </small>
                   <div className="d-flex align-items-start">
                     <img
                       src={
                         message.sender === user_id
-                          ? message.receiver_profile.image || "https://via.placeholder.com/40"
-                          : message.sender_profile.image || "https://via.placeholder.com/40"
+                          ? message.receiver_profile.image ||
+                            "https://via.placeholder.com/40"
+                          : message.sender_profile.image ||
+                            "https://via.placeholder.com/40"
                       }
                       className="rounded-circle shadow-sm mr-1"
                       alt="profile"
@@ -161,14 +167,10 @@ function MessageDetail() {
                     <div className="flex-grow-1 ml-3">
                       <div className="font-weight-bold">
                         {message.sender === user_id
-                          ? message.receiver_profile.full_name || "Unknown User"
-                          : message.sender_profile.full_name || "Unknown User"}
+                          ? message.receiver_profile.full_name
+                          : message.sender_profile.full_name}
                       </div>
-                      <div
-                        className="small text-muted mt-1 truncate"
-                        title={message.message}
-                        style={{ maxWidth: "250px" }}
-                      >
+                      <div className="small text-muted mt-1 truncate">
                         {message.message}
                       </div>
                     </div>
@@ -181,25 +183,22 @@ function MessageDetail() {
 
             {/* Chat Panel */}
             <div className="col-12 col-lg-7 col-xl-9">
-              {/* Chat Header */}
               <div className="py-2 px-4 border-bottom d-none d-lg-block">
                 <div className="d-flex align-items-center py-1">
-                  <div className="position-relative">
-                    <img
-                      src={
-                        message.length > 0
-                          ? message[0].sender === user_id
-                            ? message[0].receiver_profile.image || "https://via.placeholder.com/40"
-                            : message[0].sender_profile.image || "https://via.placeholder.com/40"
-                          : "https://via.placeholder.com/40"
-                      }
-                      className="rounded-circle shadow-sm mr-1"
-                      alt="Receiver Profile"
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "cover", border: "1px solid #ddd" }}
-                    />
-                  </div>
+                  <img
+                    src={
+                      message.length > 0
+                        ? message[0].sender === user_id
+                          ? message[0].receiver_profile.image
+                          : message[0].sender_profile.image
+                        : "https://via.placeholder.com/40"
+                    }
+                    className="rounded-circle shadow-sm mr-1"
+                    alt="profile"
+                    width={40}
+                    height={40}
+                    style={{ objectFit: "cover", border: "1px solid #ddd" }}
+                  />
                   <div className="flex-grow-1 pl-3">
                     <strong>
                       {message.length > 0
@@ -208,30 +207,38 @@ function MessageDetail() {
                           : message[0].sender_profile.full_name
                         : "Loading..."}
                     </strong>
-                    <div className="text-muted small">
-                      <em>Online</em>
-                    </div>
+                    <div className="text-muted small"><em>Online</em></div>
                   </div>
                 </div>
               </div>
 
-              {/* Chat Messages */}
+              {/* Chat Messages Scrollable Area */}
               <div className="position-relative">
-                <div className="chat-messages p-4">
+                <div
+                  className="chat-messages p-4"
+                  style={{ height: "70vh", overflowY: "auto" }}
+                >
                   {message.map((msg, index) => (
                     <React.Fragment key={index}>
                       {msg.sender === user_id ? (
-                        // Right-side message
                         <div className="chat-message-right pb-4">
                           <div>
                             <img
-                              src={msg.sender_profile.image || "https://via.placeholder.com/40"}
+                              src={
+                                msg.sender_profile.image ||
+                                "https://via.placeholder.com/40"
+                              }
                               className="rounded-circle shadow-sm mr-1"
                               alt={msg.sender_profile.full_name}
-                              style={{ objectFit: "cover", width: "40px", height: "40px", border: "1px solid #ddd" }}
+                              style={{
+                                objectFit: "cover",
+                                width: "40px",
+                                height: "40px",
+                                border: "1px solid #ddd",
+                              }}
                             />
                             <div className="text-muted small text-nowrap mt-2">
-                              {moment.utc(msg.date).local().startOf("seconds").fromNow()}
+                              {moment.utc(msg.date).local().fromNow()}
                             </div>
                           </div>
                           <div className="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
@@ -240,21 +247,30 @@ function MessageDetail() {
                           </div>
                         </div>
                       ) : (
-                        // Left-side message
                         <div className="chat-message-left pb-4">
                           <div>
                             <img
-                              src={msg.sender_profile.image || "https://via.placeholder.com/40"}
+                              src={
+                                msg.sender_profile.image ||
+                                "https://via.placeholder.com/40"
+                              }
                               className="rounded-circle shadow-sm mr-1"
                               alt={msg.sender_profile.full_name}
-                              style={{ objectFit: "cover", width: "40px", height: "40px", border: "1px solid #ddd" }}
+                              style={{
+                                objectFit: "cover",
+                                width: "40px",
+                                height: "40px",
+                                border: "1px solid #ddd",
+                              }}
                             />
                             <div className="text-muted small text-nowrap mt-2">
-                              {moment.utc(msg.date).local().startOf("seconds").fromNow()}
+                              {moment.utc(msg.date).local().fromNow()}
                             </div>
                           </div>
                           <div className="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
-                            <div className="font-weight-bold mb-1">{msg.sender_profile.full_name}</div>
+                            <div className="font-weight-bold mb-1">
+                              {msg.sender_profile.full_name}
+                            </div>
                             {msg.message}
                           </div>
                         </div>
@@ -279,7 +295,11 @@ function MessageDetail() {
                     <button
                       onClick={SendMessage}
                       className="btn btn-primary"
-                      style={{ borderRadius: "0 50px 50px 0", padding: "0 25px", fontWeight: "500" }}
+                      style={{
+                        borderRadius: "0 50px 50px 0",
+                        padding: "0 25px",
+                        fontWeight: "500",
+                      }}
                     >
                       <i className="fas fa-paper-plane me-1"></i> Send
                     </button>
