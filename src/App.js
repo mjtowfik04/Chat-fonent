@@ -11,6 +11,7 @@ import Message from './views/Message';
 import SearchUsers from './views/SearchUsers';
 import MessageDetail from './views/MessageDetail';
 import EditProfile from './views/EditProfile';
+import User from './views/AllUsers';  // নাম বড় হাতের করা হয়েছে
 
 function App() {
   return (
@@ -24,6 +25,9 @@ function App() {
           <Route path="/login" element={<Loginpage />} />
           <Route path="/todo" element={<Todo />} />
           <Route path="/inbox" element={<Message />} />
+          {/* এখানে /inbox এর জন্য আরেকটা রাউট রাখা ঠিক হবে না, তাই আলাদা path দাও */}
+          <Route path="/users" element={<User />} /> 
+
           <Route path="/search/:username" element={<SearchUsers />} />
           
           {/* Private Routes */}

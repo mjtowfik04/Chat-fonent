@@ -170,6 +170,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+  
   // On app load: restore session if possible
   useEffect(() => {
     const tokens = getStoredTokens();

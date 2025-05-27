@@ -85,3 +85,32 @@ img.rounded-circle.profile-photo:hover {
   height: 70vh;
   overflow-y: auto;
 }
+.profile-carousel {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.profile-item {
+  text-align: center;
+  cursor: pointer;
+  padding: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.profile-item.selected {
+  background-color: #007bff;
+  color: white;
+  border-radius: 10px;
+}
+
+.message-item.sent {
+  text-align: right;
+}
+
+.message-item.received {
+  text-align: left;
+}
+
