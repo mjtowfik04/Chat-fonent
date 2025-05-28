@@ -106,13 +106,42 @@ function MessageDetail() {
   };
 
   return (
-    <main className="content" style={{ marginTop: "150px" }}>
+    <main className="content mt-5">
+      {/* Mobile Header */}
+    
+<div className="mobile-chat-header d-lg-none">
+  <button className="back-button" onClick={() => navigate('/inbox/')}>
+    <i className="fas fa-arrow-left"></i>
+  </button>
+  <img
+    src={
+      message.length > 0
+        ? message[0].sender === user_id
+          ? message[0].receiver_profile.image
+          : message[0].sender_profile.image
+        : "https://via.placeholder.com/40"
+    }
+    alt="profile"
+  />
+  <div>
+    <h5>
+      {message.length > 0
+        ? message[0].sender === user_id
+          ? message[0].receiver_profile.full_name
+          : message[0].sender_profile.full_name
+        : "Loading..."}
+    </h5>
+    <small>Online</small>
+  </div>
+</div>
+
+
       <div className="container p-0">
-        <h1 className="h3 mb-3">Messages</h1>
+        <h1 className="h3 mb-3 d-none d-lg-block">Messages</h1>
         <div className="card">
           <div className="row g-0">
             {/* Sidebar */}
-            <div className="col-12 col-lg-5 col-xl-3 border-right">
+            <div className="col-12 col-lg-5 col-xl-3 border-right d-none d-lg-block">
               <div className="px-4">
                 <div className="d-flex align-items-center mt-2">
                   <input
@@ -183,6 +212,7 @@ function MessageDetail() {
 
             {/* Chat Panel */}
             <div className="col-12 col-lg-7 col-xl-9">
+              {/* Desktop Header */}
               <div className="py-2 px-4 border-bottom d-none d-lg-block">
                 <div className="d-flex align-items-center py-1">
                   <img
@@ -207,7 +237,9 @@ function MessageDetail() {
                           : message[0].sender_profile.full_name
                         : "Loading..."}
                     </strong>
-                    <div className="text-muted small"><em>Online</em></div>
+                    <div className="text-muted small">
+                      <em>Online</em>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -216,61 +248,44 @@ function MessageDetail() {
               <div className="position-relative">
                 <div
                   className="chat-messages p-4"
-                  style={{ height: "70vh", overflowY: "auto" }}
+                  style={{ height: "calc(100vh - 180px)" }}
                 >
                   {message.map((msg, index) => (
                     <React.Fragment key={index}>
                       {msg.sender === user_id ? (
-                        <div className="chat-message-right pb-4">
-                          <div>
-                            <img
-                              src={
-                                msg.sender_profile.image ||
-                                "https://via.placeholder.com/40"
-                              }
-                              className="rounded-circle shadow-sm mr-1"
-                              alt={msg.sender_profile.full_name}
-                              style={{
-                                objectFit: "cover",
-                                width: "40px",
-                                height: "40px",
-                                border: "1px solid #ddd",
-                              }}
-                            />
-                            <div className="text-muted small text-nowrap mt-2">
+                        <div className="chat-message-right pb-3">
+                          <div className="message-meta">
+                            <small className="text-muted">
                               {moment.utc(msg.date).local().fromNow()}
-                            </div>
+                            </small>
                           </div>
-                          <div className="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-                            <div className="font-weight-bold mb-1">You</div>
+                          <div className="message-bubble sent">
                             {msg.message}
                           </div>
                         </div>
                       ) : (
-                        <div className="chat-message-left pb-4">
-                          <div>
+                        <div className="chat-message-left pb-3">
+                          <div className="d-flex align-items-center mb-1">
                             <img
                               src={
                                 msg.sender_profile.image ||
                                 "https://via.placeholder.com/40"
                               }
-                              className="rounded-circle shadow-sm mr-1"
+                              className="rounded-circle shadow-sm mr-2"
                               alt={msg.sender_profile.full_name}
-                              style={{
-                                objectFit: "cover",
-                                width: "40px",
-                                height: "40px",
-                                border: "1px solid #ddd",
-                              }}
+                              width={32}
+                              height={32}
                             />
-                            <div className="text-muted small text-nowrap mt-2">
-                              {moment.utc(msg.date).local().fromNow()}
+                            <div className="message-meta">
+                              <strong className="d-block">
+                                {msg.sender_profile.full_name}
+                              </strong>
+                              <small className="text-muted">
+                                {moment.utc(msg.date).local().fromNow()}
+                              </small>
                             </div>
                           </div>
-                          <div className="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
-                            <div className="font-weight-bold mb-1">
-                              {msg.sender_profile.full_name}
-                            </div>
+                          <div className="message-bubble received">
                             {msg.message}
                           </div>
                         </div>
@@ -290,7 +305,10 @@ function MessageDetail() {
                       name="message"
                       id="text-input"
                       onChange={handleChange}
-                      style={{ borderRadius: "50px 0 0 50px", paddingLeft: "20px" }}
+                      style={{
+                        borderRadius: "50px 0 0 50px",
+                        paddingLeft: "20px",
+                      }}
                     />
                     <button
                       onClick={SendMessage}
@@ -301,12 +319,12 @@ function MessageDetail() {
                         fontWeight: "500",
                       }}
                     >
-                      <i className="fas fa-paper-plane me-1"></i> Send
+                      <i className="fas fa-paper-plane"></i>
+                      <span className="d-none d-lg-inline ml-1">Send</span>
                     </button>
                   </div>
                 </div>
               </div>
-              {/* End Chat Panel */}
             </div>
           </div>
         </div>

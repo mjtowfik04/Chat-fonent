@@ -148,27 +148,70 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Update profile function
+  // const updateUserProfile = async (user_id, formData) => {
+  //   try {
+  //     const token = authTokens?.access;
+  //     const response = await fetch(`${baseurl}/api/profile/${user_id}/`, {
+  //       method: "PUT",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: formData,
+  //     });
+
+  //     if (!response.ok) {
+  //       const text = await response.text();
+  //       console.error("Update failed:", text);
+  //     } else {
+  //       console.log("Profile updated successfully");
+  //     }
+  //   } catch (error) {
+  //     console.error("Update error:", error);
+  //   }
+  // };
+
+
   const updateUserProfile = async (user_id, formData) => {
-    try {
-      const token = authTokens?.access;
-      const response = await fetch(`${baseurl}/api/profile/${user_id}/`, {
-        method: "PUT",
+  try {
+    const token = authTokens?.access;
+
+    // Step 1: PUT request দিয়ে প্রোফাইল আপডেট করা
+    const response = await fetch(`${baseurl}/api/profile/${user_id}/`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Update failed:", text);
+    } else {
+      console.log("Profile updated successfully");
+
+      // Step 2: প্রোফাইল আপডেটের পর নতুন ইউজার ডেটা GET করে সেট করা
+      const userResponse = await fetch(`${baseurl}/api/profile/${user_id}/`, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: formData,
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Update failed:", text);
+      if (userResponse.ok) {
+        const updatedUser = await userResponse.json();
+        setUser(updatedUser); // ✅ ইউজার স্টেট আপডেট
+        console.log("User context updated after profile update.");
       } else {
-        console.log("Profile updated successfully");
+        console.warn("Failed to fetch updated user profile.");
       }
-    } catch (error) {
-      console.error("Update error:", error);
     }
-  };
+  } catch (error) {
+    console.error("Update error:", error);
+  }
+};
+
 
 
   

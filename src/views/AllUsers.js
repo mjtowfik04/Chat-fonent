@@ -1,104 +1,98 @@
-// import React, { useContext, useEffect, useState } from "react";
-// import axios from "axios";
-// import AuthContext from "../context/AuthContext";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-// const AllUsers = () => {
-//   const { authTokens, refreshAccessToken, logoutUser } = useContext(AuthContext);
+const AllUsers = () => {
+  const baseURL = "https://chat-backend-ten-orcin.vercel.app/api";
+  const imageBaseURL = "https://chat-backend-ten-orcin.vercel.app/media/";
 
-//   const [users, setUsers] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-//   useEffect(() => {
-//     const fetchUsers = async () => {
-//       if (!authTokens?.access) {
-//         setError("Please login first");
-//         setLoading(false);
-//         return;
-//       }
+  useEffect(() => {
+    axios
+      .get(`${baseURL}/users/`)
+      .then((res) => {
+        setUsers(res.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load users.");
+        setLoading(false);
+      });
+  }, []);
 
-//       try {
-//         const res = await axios.get("https://chat-backend-ten-orcin.vercel.app/api/users/", {
-//           headers: {
-//             Authorization: `Bearer ${authTokens.access}`,
-//           },
-//         });
-//         setUsers(res.data);
-//         setLoading(false);
-//       } catch (err) {
-//         if (err.response && err.response.status === 401) {
-//           // Token expired, try to refresh token
-//           const newAccessToken = await refreshAccessToken();
-//           if (newAccessToken) {
-//             try {
-//               const resRetry = await axios.get("https://chat-backend-ten-orcin.vercel.app/api/users/", {
-//                 headers: {
-//                   Authorization: `Bearer ${newAccessToken}`,
-//                 },
-//               });
-//               setUsers(resRetry.data);
-//             } catch (errRetry) {
-//               setError("Failed to fetch users after refreshing token.");
-//               logoutUser();
-//             }
-//           } else {
-//             setError("Session expired. Please login again.");
-//             logoutUser();
-//           }
-//         } else {
-//           setError("Failed to fetch users");
-//         }
-//         setLoading(false);
-//       }
-//     };
+  if (loading) return <div className="text-center mt-5">Loading users...</div>;
+  if (error) return <div className="alert alert-danger mt-3">{error}</div>;
 
-//     fetchUsers();
-//   }, [authTokens, refreshAccessToken, logoutUser]);
+  const handleUserClick = (userId) => {
+    navigate(`/inbox/${userId}/`);
+  };
 
-//   if (loading) return <div className="text-center mt-5">Loading users...</div>;
-//   if (error) return <div className="alert alert-danger mt-3">{error}</div>;
+  return (
+    <div className="container mt-5">
+      <main className="content" style={{ marginTop: "100px" }}>
+        <div className="container p-0">
+          <h4 className="mb-3">Chats</h4>
 
-//   return (
-//     <div className="container mt-4">
-//       <h2>All Users</h2>
-//       <table className="table table-striped table-hover mt-3">
-//         <thead className="table-dark">
-//           <tr>
-//             <th>ID</th>
-//             <th>Username</th>
-//             <th>Email</th>
-//             <th>Profile</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {users.map((user) => (
-//             <tr key={user.id}>
-//               <td>{user.id}</td>
-//               <td>{user.username}</td>
-//               <td>{user.email}</td>
-//               <td>
-//                 {user.profile ? (
-//                   <>
-//                     {user.profile.image && (
-//                       <img
-//                         src={user.profile.image}
-//                         alt={`${user.username} avatar`}
-//                         style={{ width: "40px", borderRadius: "50%" }}
-//                         className="me-2"
-//                       />
-//                     )}
-//                     {user.profile.bio || "No bio"}
-//                   </>
-//                 ) : (
-//                   "No Profile"
-//                 )}
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
+          <div
+            style={{
+              maxHeight: "500px",
+              overflowY: "scroll",  // scroll বার সবসময় দেখাবে
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+            }}
+          >
+            <ul className="list-group list-group-flush">
+              {users.map((user) => {
+                const profile = user.profile || {};
+                const imageUrl = profile.image
+                  ? imageBaseURL + profile.image
+                  : "https://via.placeholder.com/40?text=DP";
 
-// export default AllUsers;
+                return (
+                  <li
+                    key={user.id}
+                    className="list-group-item d-flex align-items-center"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleUserClick(user.id)}
+                  >
+                    {/* Profile Image */}
+                    <img
+                      src={imageUrl}
+                      alt={user.username}
+                      className="rounded-circle me-3"
+                      width="50"
+                      height="50"
+                    />
+
+                    {/* Name and Bio */}
+                    <div className="flex-grow-1">
+                      <div className="fw-bold">{user.full_name}</div>
+                      <small className="text-muted">
+                        {profile.bio || "Hey there! I am using ChatApp."}
+                      </small>
+                    </div>
+
+                    {/* Optional Time + Blue dot */}
+                    <div className="text-end">
+                      <small className="text-muted">Just now</small>
+                      <div
+                        className="bg-primary rounded-circle mt-1 ms-2"
+                        style={{ width: "10px", height: "10px" }}
+                      ></div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default AllUsers;

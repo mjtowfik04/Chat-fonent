@@ -1,70 +1,73 @@
-body{margin-top:20px;}
+/* ----------------------------
+   Chat Layout Styles
+---------------------------- */
+body {
+  margin-top: 20px;
+}
 
 .chat-online {
-    color: #34ce57
+  color: #34ce57;
 }
 
 .chat-offline {
-    color: #e4606d
+  color: #e4606d;
 }
 
 .chat-messages {
-    display: flex;
-    flex-direction: column;
-    max-height: 800px;
-    overflow-y: scroll
+  display: flex;
+  flex-direction: column;
+  max-height: 800px;
+  overflow-y: scroll;
+  padding: 15px;
 }
 
 .chat-message-left,
 .chat-message-right {
-    display: flex;
-    flex-shrink: 0
+  display: flex;
+  flex-shrink: 0;
+  margin-bottom: 15px;
 }
 
 .chat-message-left {
-    margin-right: auto
+  margin-right: auto;
 }
 
 .chat-message-right {
-    flex-direction: row-reverse;
-    margin-left: auto
-}
-.py-3 {
-    padding-top: 1rem!important;
-    padding-bottom: 1rem!important;
-}
-.px-4 {
-    padding-right: 1.5rem!important;
-    padding-left: 1.5rem!important;
-}
-.flex-grow-0 {
-    flex-grow: 0!important;
-}
-.border-top {
-    border-top: 1px solid #dee2e6!important;
+  flex-direction: row-reverse;
+  margin-left: auto;
 }
 
-/* প্রোফাইল ছবিগুলো সুন্দর করার জন্য */
-img.rounded-circle.profile-photo {
-  border: 2px solid #4a90e2; /* নীল রঙের বর্ডার */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* হালকা শ্যাডো */
-  object-fit: cover; /* ছবির অংশ সুন্দরভাবে ফিট হবে */
-  transition: transform 0.3s ease;
-  cursor: pointer;
+.message-bubble {
+  padding: 10px 15px;
+  border-radius: 18px;
+  max-width: 80%;
+  word-wrap: break-word;
 }
 
-img.rounded-circle.profile-photo:hover {
-  transform: scale(1.1); /* হোভার করলে একটু বড় হবে */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+.message-bubble.sent {
+  background: #007bff;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
 }
-/* style/Message.css */
 
+.message-bubble.received {
+  background: #f1f1f1;
+  color: #333;
+  margin-right: auto;
+  border-bottom-left-radius: 4px;
+}
+
+/* ----------------------------
+   Profile Carousel Styles
+---------------------------- */
 .profile-carousel {
   display: flex;
   overflow-x: auto;
-  padding: 5px;
-  gap: 10px;
+  gap: 15px;
+  padding-bottom: 10px;
   scrollbar-width: none;
+  border-bottom: 1px solid #ddd;
 }
 
 .profile-carousel::-webkit-scrollbar {
@@ -72,29 +75,9 @@ img.rounded-circle.profile-photo:hover {
 }
 
 .profile-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-}
-.profile-photo {
-  object-fit: cover;
-}
-.chat-messages {
-  height: 70vh;
-  overflow-y: auto;
-}
-.profile-carousel {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.profile-item {
+  flex: 0 0 auto;
   text-align: center;
+  color: inherit;
   cursor: pointer;
   padding: 5px;
   transition: background-color 0.3s ease;
@@ -106,6 +89,183 @@ img.rounded-circle.profile-photo:hover {
   border-radius: 10px;
 }
 
+img.rounded-circle.profile-photo {
+  border: 2px solid #4a90e2;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+img.rounded-circle.profile-photo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ----------------------------
+   Mobile Styles
+---------------------------- */
+@media (max-width: 992px) {
+  .mobile-message-container {
+    padding: 15px;
+    background: #f8f9fa;
+    min-height: 100vh;
+  }
+
+  .mobile-header {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+  }
+
+  .mobile-title {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .mobile-search-container {
+    margin-bottom: 20px;
+  }
+
+  .mobile-search-box {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 20px;
+    padding: 8px 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-icon {
+    color: #999;
+    margin-right: 10px;
+  }
+
+  .mobile-search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .mobile-message-list {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .mobile-message-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+  }
+
+  .mobile-message-item.unread {
+    background-color: #f8f9fa;
+  }
+
+  .message-avatar-container {
+    margin-right: 12px;
+  }
+
+  .message-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .message-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  .message-sender {
+    font-weight: 600;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .message-time {
+    color: #999;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+
+  .message-preview {
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ----------------------------
+   Mobile Chat Header (Fixed)
+---------------------------- */
+.mobile-chat-header {
+  position: fixed;
+  top: 64px; /* navbar height */
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: #000;
+  color: white;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  border-bottom: 1px solid #333;
+}
+
+.mobile-chat-header img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 2px solid #fff;
+}
+
+.mobile-chat-header h5 {
+  font-size: 16px;
+  margin: 0;
+  color: #fff;
+}
+
+.mobile-chat-header small {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  margin-right: 10px;
+  padding: 5px;
+}
+
+/* ----------------------------
+   Chat Input & Bubbles
+---------------------------- */
+.input-group {
+  padding: 0 10px;
+}
+
 .message-item.sent {
   text-align: right;
 }
@@ -114,3 +274,30 @@ img.rounded-circle.profile-photo:hover {
   text-align: left;
 }
 
+/* ----------------------------
+   General Spacing
+---------------------------- */
+.mt-6 {
+  margin-top: 5.5cm;
+}
+
+/* ----------------------------
+   Content Offset (for header)
+---------------------------- */
+.content {
+  margin-top: 130px !important;
+}
+
+@media (min-width: 992px) {
+  .content {
+    margin-top: 150px !important;
+  }
+
+  .chat-messages {
+    height: calc(70vh) !important;
+  }
+
+  .message-bubble {
+    max-width: 60%;
+  }
+}
