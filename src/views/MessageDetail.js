@@ -98,43 +98,46 @@ function MessageDetail() {
     setnewSearch({ ...newSearch, [event.target.name]: event.target.value });
   };
 
-  const SearchUser = () => {
+   const SearchUser = () => {
     axios
       .get(`${baseURL}/search/${newSearch.username}/`)
-      .then(() => navigate(`/search/${newSearch.username}/`))
-      .catch(() => alert("User Does Not Exist"));
+      .then(() => {
+        navigate("/search/" + newSearch.username + "/");
+      })
+      .catch(() => {
+        alert("User Does Not Exist");
+      });
   };
 
   return (
     <main className="content mt-5">
       {/* Mobile Header */}
-    
-<div className="mobile-chat-header d-lg-none">
-  <button className="back-button" onClick={() => navigate('/inbox/')}>
-    <i className="fas fa-arrow-left"></i>
-  </button>
-  <img
-    src={
-      message.length > 0
-        ? message[0].sender === user_id
-          ? message[0].receiver_profile.image
-          : message[0].sender_profile.image
-        : "https://via.placeholder.com/40"
-    }
-    alt="profile"
-  />
-  <div>
-    <h5>
-      {message.length > 0
-        ? message[0].sender === user_id
-          ? message[0].receiver_profile.full_name
-          : message[0].sender_profile.full_name
-        : "Loading..."}
-    </h5>
-    <small>Online</small>
-  </div>
-</div>
 
+      <div className="mobile-chat-header d-lg-none">
+        <button className="back-button" onClick={() => navigate("/inbox/")}>
+          <i className="fas fa-arrow-left"></i>
+        </button>
+        <img
+          src={
+            message.length > 0
+              ? message[0].sender === user_id
+                ? message[0].receiver_profile.image
+                : message[0].sender_profile.image
+              : "https://via.placeholder.com/40"
+          }
+          alt="profile"
+        />
+        <div>
+          <h5>
+            {message.length > 0
+              ? message[0].sender === user_id
+                ? message[0].receiver_profile.full_name
+                : message[0].sender_profile.full_name
+              : "Loading..."}
+          </h5>
+          <small>Online</small>
+        </div>
+      </div>
 
       <div className="container p-0">
         <h1 className="h3 mb-3 d-none d-lg-block">Messages</h1>

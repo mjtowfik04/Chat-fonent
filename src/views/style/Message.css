@@ -301,3 +301,19 @@ img.rounded-circle.profile-photo:hover {
     max-width: 60%;
   }
 }
+.message-avatar-container {
+  width: 50px;        /* প্রস্থ */
+  height: 50px;       /* উচ্চতা */
+  overflow: hidden;   /* বাইরে যাওয়া অংশ লুকানো */
+  border-radius: 50%; /* গোল করো */
+  display: inline-block; /* প্রয়োজন অনুযায়ী */
+}
+
+.message-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* কভার মোড, পুরো জায়গাটা পূরণ করবে */
+  border-radius: 50%; /* ছবিটাও গোল হবে */
+  display: block;     /* ডিফল্ট স্পেস দূর করার জন্য */
+}
+

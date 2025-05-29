@@ -95,7 +95,7 @@ function Todo() {
                         <div className="col shadow main-col bg-white">
                             <div className="row bg-primary text-white">
                                 <div className="col p-2">
-                                    <h4>Desphixs Todo App</h4>
+                                    <h4>Todo App</h4>
                                 </div>
                             </div>
                             <div className="row justify-content-between text-white p-2">

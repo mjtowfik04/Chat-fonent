@@ -69,6 +69,7 @@ function Message() {
             name="username"
           />
         </div>
+        
       </div>
 
       {/* Mobile Message List */}
