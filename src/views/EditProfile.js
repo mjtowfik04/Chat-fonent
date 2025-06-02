@@ -19,19 +19,19 @@ function EditProfile() {
     }
   }, [user, reset]);
 
-  // // 🔁 Auto refresh every 5 seconds
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (user) {
-  //       reset({
-  //         full_name: user.full_name || "",
-  //         bio: user.bio || "",
-  //       });
-  //     }
-  //   }, 20000);
+  // 🔁 Auto refresh every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (user) {
+        reset({
+          full_name: user.full_name || "",
+          bio: user.bio || "",
+        });
+      }
+    }, 20000);
 
-  //   return () => clearInterval(interval); // Cleanup
-  // }, [user, reset]);
+    return () => clearInterval(interval); // Cleanup
+  }, [user, reset]);
 
   const onSubmit = async (data) => {
     try {

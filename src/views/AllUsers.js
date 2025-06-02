@@ -1,46 +1,54 @@
+// AllUsers.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from "react-bootstrap"; // Add this import
 
 const AllUsers = () => {
   const baseURL = "https://chat-backend-ten-orcin.vercel.app/api";
-  const imageBaseURL = "https://chat-backend-ten-orcin.vercel.app/media/";
-
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`${baseURL}/users/`)
-      .then((res) => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get(`${baseURL}/users/`);
         setUsers(res.data);
-        setLoading(false);
-      })
-      .catch(() => {
+      } catch (err) {
         setError("Failed to load users.");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    
+    fetchUsers();
   }, []);
 
-  if (loading) return <div className="text-center mt-5">Loading users...</div>;
-  if (error) return <div className="alert alert-danger mt-3">{error}</div>;
-
   const handleUserClick = (userId) => {
-    navigate(`/inbox/${userId}/`);
+    navigate(`/inbox/${userId}/`, { state: { fromAllUsers: true } });
   };
+
+  if (loading) return (
+    <div className="text-center mt-5">
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading users...</span>
+      </Spinner>
+    </div>
+  );
+  
+  if (error) return <div className="alert alert-danger mt-3">{error}</div>;
 
   return (
     <div className="container mt-5">
       <main className="content" style={{ marginTop: "100px" }}>
         <div className="container p-0">
-          <h4 className="mb-3">Chats</h4>
-
+          <h4 className="mb-3">All Users</h4>
           <div
             style={{
               maxHeight: "500px",
-              overflowY: "scroll",  // scroll বার সবসময় দেখাবে
+              overflowY: "auto",
               border: "1px solid #ddd",
               borderRadius: "8px",
             }}
@@ -49,40 +57,29 @@ const AllUsers = () => {
               {users.map((user) => {
                 const profile = user.profile || {};
                 const imageUrl = profile.image
-                  ? imageBaseURL + profile.image
-                  : "https://via.placeholder.com/40?text=DP";
+                  ? `https://res.cloudinary.com/dzdkjttcz/${profile.image}`
+                  : "https://via.placeholder.com/50";
 
                 return (
                   <li
                     key={user.id}
-                    className="list-group-item d-flex align-items-center"
+                    className="list-group-item d-flex align-items-center p-3"
                     style={{ cursor: "pointer" }}
                     onClick={() => handleUserClick(user.id)}
                   >
-                    {/* Profile Image */}
                     <img
                       src={imageUrl}
                       alt={user.username}
                       className="rounded-circle me-3"
                       width="50"
                       height="50"
+                      style={{ objectFit: "cover" }}
                     />
-
-                    {/* Name and Bio */}
-                    <div className="flex-grow-1">
-                      <div className="fw-bold">{user.full_name}</div>
-                      <small className="text-muted">
-                        {profile.bio || "Hey there! I am using ChatApp."}
-                      </small>
-                    </div>
-
-                    {/* Optional Time + Blue dot */}
-                    <div className="text-end">
-                      <small className="text-muted">Just now</small>
-                      <div
-                        className="bg-primary rounded-circle mt-1 ms-2"
-                        style={{ width: "10px", height: "10px" }}
-                      ></div>
+                    <div>
+                      <div className="fw-bold text-truncate" style={{ maxWidth: "200px" }}>
+                        {profile.full_name || user.username}
+                      </div>
+                      <small className="text-muted">@{user.username}</small>
                     </div>
                   </li>
                 );

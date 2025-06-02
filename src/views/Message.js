@@ -7,7 +7,6 @@ import "./style/Message.css";
 
 function Message() {
   const baseURL = "https://chat-backend-ten-orcin.vercel.app/api";
-  const imageBaseURL = "https://chat-backend-ten-orcin.vercel.app/media/";
 
   const [messages, setMessages] = useState([]);
   const [newSearch, setNewSearch] = useState({ username: "" });
@@ -23,7 +22,10 @@ function Message() {
     const fetchMessages = () => {
       axios
         .get(`${baseURL}/my-messages/${user_id}/`)
-        .then((res) => setMessages(res.data))
+        .then((res) => {
+          // console.log(res.data);
+          setMessages(res.data);
+        })
         .catch((err) => console.log(err));
     };
 
@@ -69,7 +71,6 @@ function Message() {
             name="username"
           />
         </div>
-        
       </div>
 
       {/* Mobile Message List */}
@@ -87,23 +88,29 @@ function Message() {
             <Link
               key={message.id}
               to={`/inbox/${user}/`}
-              className={`mobile-message-item ${isUnread ? 'unread' : ''}`}
+              className={`mobile-message-item ${isUnread ? "unread" : ""}`}
             >
               <div className="message-avatar-container">
                 <img
-                  src={profile.image ? imageBaseURL + profile.image : "https://via.placeholder.com/50"}
+                  src={
+                    profile.image
+                      ? `https://res.cloudinary.com/dzdkjttcz/${profile.image}`
+                      : "https://via.placeholder.com/50"
+                  }
                   alt="Profile"
                   className="message-avatar"
                 />
               </div>
               <div className="message-content">
                 <div className="message-header">
-                  <span className="message-sender">{profile.full_name || "Unknown User"}</span>
+                  <span className="message-sender">
+                    {profile.full_name || "Unknown User"}
+                  </span>
                   <span className="message-time">{lastMessageTime}</span>
                 </div>
                 <div className="message-preview">
-                  {message.message.length > 30 
-                    ? `${message.message.substring(0, 30)}...` 
+                  {message.message.length > 30
+                    ? `${message.message.substring(0, 30)}...`
                     : message.message}
                 </div>
               </div>
@@ -125,51 +132,51 @@ function Message() {
           background: #f8f9fa;
           min-height: 100vh;
         }
-        
+
         .mobile-header {
           padding: 15px 0;
           border-bottom: 1px solid #eee;
           margin-bottom: 15px;
         }
-        
+
         .mobile-title {
           font-size: 24px;
           font-weight: 600;
           margin: 0;
         }
-        
+
         .mobile-search-container {
           margin-bottom: 20px;
         }
-        
+
         .mobile-search-box {
           display: flex;
           align-items: center;
           background: #fff;
           border-radius: 20px;
           padding: 8px 15px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         .search-icon {
           color: #999;
           margin-right: 10px;
         }
-        
+
         .mobile-search-input {
           border: none;
           outline: none;
           width: 100%;
           font-size: 14px;
         }
-        
+
         .mobile-message-list {
           background: #fff;
           border-radius: 10px;
           overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         .mobile-message-item {
           display: flex;
           padding: 12px 15px;
@@ -177,33 +184,33 @@ function Message() {
           text-decoration: none;
           color: #333;
         }
-        
+
         .mobile-message-item.unread {
           background-color: #f8f9fa;
         }
-        
+
         .message-avatar-container {
           margin-right: 12px;
         }
-        
+
         .message-avatar {
           width: 50px;
           height: 50px;
           border-radius: 50%;
           object-fit: cover;
         }
-        
+
         .message-content {
           flex: 1;
           min-width: 0;
         }
-        
+
         .message-header {
           display: flex;
           justify-content: space-between;
           margin-bottom: 5px;
         }
-        
+
         .message-sender {
           font-weight: 600;
           font-size: 16px;
@@ -211,14 +218,14 @@ function Message() {
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        
+
         .message-time {
           color: #999;
           font-size: 12px;
           white-space: nowrap;
           margin-left: 10px;
         }
-        
+
         .message-preview {
           color: #666;
           font-size: 14px;

@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
-  const baseurl = "https://chat-backend-ten-orcin.vercel.app"; 
+  const baseurl = "https://chat-backend-ten-orcin.vercel.app/api"; 
 
 const useAxios = () => {
   const { authTokens, setUser, setAuthTokens } = useContext(AuthContext);

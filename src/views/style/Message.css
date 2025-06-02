@@ -316,4 +316,38 @@ img.rounded-circle.profile-photo:hover {
   border-radius: 50%; /* ছবিটাও গোল হবে */
   display: block;     /* ডিফল্ট স্পেস দূর করার জন্য */
 }
+.chat-messages {
+  background-color: #f8f9fa; /* Bootstrap light gray */
+  height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.chat-messages {
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 3px;
+}
+
+.message-bubble {
+  transition: all 0.2s ease;
+}
+
+.message-bubble:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+}
 

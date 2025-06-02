@@ -12,32 +12,26 @@ export const AuthProvider = ({ children }) => {
 
   // Safely retrieve and validate tokens from localStorage
   const getStoredTokens = () => {
-  try {
-    const stored = localStorage.getItem("authTokens");
-    if (!stored) return null;
+    try {
+      const stored = localStorage.getItem("authTokens");
+      if (!stored) return null;
 
-    const tokens = JSON.parse(stored);
+      const tokens = JSON.parse(stored);
 
-    if (
-      !tokens?.access ||
-      typeof tokens.access !== "string" ||
-      tokens.access.trim() === "" 
-      // tokens.access === "undefined" ||
-      // tokens.access === "null"
-    ) {
-      throw new Error("Invalid access token format");
+      if (!tokens?.access || typeof tokens.access !== "string" || tokens.access.trim() === "") {
+        throw new Error("Invalid access token format");
+      }
+
+      jwt_decode(tokens.access); // Validate token
+      return tokens;
+    } catch (error) {
+      console.warn("Invalid token found in localStorage:", error.message);
+      localStorage.removeItem("authTokens");
+      return null;
     }
+  };
 
-    jwt_decode(tokens.access); // Try decoding to confirm it's a real token
-    return tokens;
-  } catch (error) {
-    console.warn("Invalid token found in localStorage:", error.message);
-    localStorage.removeItem("authTokens");
-    return null;
-  }
-};
-
-  // Safely decode a valid JWT access token
+  // Decode JWT token
   const getDecodedUser = (tokens) => {
     try {
       return tokens?.access ? jwt_decode(tokens.access) : null;
@@ -147,75 +141,49 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // Update profile function
-  // const updateUserProfile = async (user_id, formData) => {
-  //   try {
-  //     const token = authTokens?.access;
-  //     const response = await fetch(`${baseurl}/api/profile/${user_id}/`, {
-  //       method: "PUT",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: formData,
-  //     });
-
-  //     if (!response.ok) {
-  //       const text = await response.text();
-  //       console.error("Update failed:", text);
-  //     } else {
-  //       console.log("Profile updated successfully");
-  //     }
-  //   } catch (error) {
-  //     console.error("Update error:", error);
-  //   }
-  // };
-
-
+  // ✅ Updated: Update user profile & context after PUT
   const updateUserProfile = async (user_id, formData) => {
-  try {
-    const token = authTokens?.access;
+    try {
+      const token = authTokens?.access;
 
-    // Step 1: PUT request দিয়ে প্রোফাইল আপডেট করা
-    const response = await fetch(`${baseurl}/api/profile/${user_id}/`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("Update failed:", text);
-    } else {
-      console.log("Profile updated successfully");
-
-      // Step 2: প্রোফাইল আপডেটের পর নতুন ইউজার ডেটা GET করে সেট করা
-      const userResponse = await fetch(`${baseurl}/api/profile/${user_id}/`, {
-        method: "GET",
+      // Step 1: Update profile via PUT
+      const response = await fetch(`${baseurl}/api/profile/${user_id}/`, {
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
+        body: formData,
       });
 
-      if (userResponse.ok) {
-        const updatedUser = await userResponse.json();
-        setUser(updatedUser); // ✅ ইউজার স্টেট আপডেট
-        console.log("User context updated after profile update.");
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Update failed:", text);
       } else {
-        console.warn("Failed to fetch updated user profile.");
+        console.log("✅ Profile updated successfully");
+
+        // Step 2: Fetch updated profile
+        const userResponse = await fetch(`${baseurl}/api/profile/${user_id}/`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (userResponse.ok) {
+          const updatedUser = await userResponse.json();
+          setUser(updatedUser); // ✅ Update context
+          console.log("✅ User context updated with latest profile.");
+        } else {
+          console.warn("⚠️ Failed to fetch updated user profile.");
+        }
       }
+    } catch (error) {
+      console.error("❌ Update error:", error);
     }
-  } catch (error) {
-    console.error("Update error:", error);
-  }
-};
+  };
 
-
-
-  
-  // On app load: restore session if possible
+  // Restore session from localStorage on first load
   useEffect(() => {
     const tokens = getStoredTokens();
     const decodedUser = getDecodedUser(tokens);
@@ -232,7 +200,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Shared context values
   const contextData = {
     user,
     setUser,
@@ -246,7 +213,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={contextData}>
-      {loading ? null : children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
